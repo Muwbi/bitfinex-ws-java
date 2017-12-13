@@ -1,9 +1,9 @@
 package cat.muwbi.bitfinex.ws.websocket.protocol.channels;
 
 
-public class AuthChannelInfo extends ChannelInfo {
+public class AccountChannelInfo extends ChannelInfo {
 
-    public AuthChannelInfo(int channelId) {
+    public AccountChannelInfo(int channelId) {
         super("auth", channelId);
     }
 

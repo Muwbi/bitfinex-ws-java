@@ -1,6 +1,7 @@
 package cat.muwbi.bitfinex.ws.websocket;
 
 import cat.muwbi.bitfinex.ws.BitfinexClient;
+import cat.muwbi.bitfinex.ws.websocket.protocol.HeartbeatPacket;
 import cat.muwbi.bitfinex.ws.websocket.protocol.Packet;
 import cat.muwbi.bitfinex.ws.websocket.protocol.channels.*;
 import com.google.gson.JsonArray;
@@ -101,7 +102,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                 }
 
                 if (!jsonArray.get(1).isJsonArray() && jsonArray.get(1).getAsString().equals("hb")) {
-                    // TODO: Heartbeat post
+                    BitfinexClient.getInstance().getEventBus().post(new HeartbeatPacket(channelId));
                     return;
                 }
 
@@ -115,7 +116,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                     System.out.println("Received TickerSubscription update: " + textWebSocketFrame.text());
                 } else if (channelInfo instanceof CandleSubscriptionChannelInfo) {
                     System.out.println("Received CandleSubscription update: " + textWebSocketFrame.text());
-                } else if (channelInfo instanceof AuthChannelInfo) {
+                } else if (channelInfo instanceof AccountChannelInfo) {
                     System.out.println("Received Auth update: " + textWebSocketFrame.text());
                 } else {
                     System.out.println("Message in unknown channel");
@@ -125,10 +126,10 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                 JsonObject jsonObject = jsonElement.getAsJsonObject();
                 if (jsonObject.has("event")) {
                     String event = jsonObject.get("event").getAsString();
-                    int channelId = jsonObject.has("chanId") ? jsonObject.get("chanId").getAsInt() : -1;
 
                     if (event.equals("subscribed")) {
                         // Subscription info
+                        int channelId = jsonObject.get("chanId").getAsInt();
                         String channelName = jsonObject.get("channel").getAsString();
 
                         switch (channelName) {
@@ -170,9 +171,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                         // TODO: EventBus post
                     } else if (event.equals("auth") && !jsonObject.get("status").getAsString().equals("OK")) {
                         // Auth error
+                        System.out.println("Auth error: status: " + jsonObject.get("status") + ", code: " + jsonObject.get("code"));
                     } else if (event.equals("auth")) {
                         // Auth successful
-                        channelMap.put(channelId, new AuthChannelInfo(channelId));
+                        // Account channel always uses 0 as channelId
+                        System.out.println("Auth successfull");
+                        channelMap.put(0, new AccountChannelInfo(0));
+
+                        // TODO: EventBus post
+                    } else if (event.equals("info")) {
 
                         // TODO: EventBus post
                     } else {
