@@ -16,18 +16,14 @@ public class Bitfinex {
         BitfinexClient bitfinexClient = new BitfinexClient();
         bitfinexClient.getEventBus().register(new BitfinexPacketHandler());
 
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("Sending AuthenticationPacket");
-        AuthenticationPacket authPacket = new AuthenticationPacket(apiKey, apiSecret);
-        System.out.println("auth packet: " + ((TextWebSocketFrame) authPacket.toWebSocketFrame()).text());
-        bitfinexClient.getWebSocketClient().getWebSocketClientHandler().sendPacket(authPacket);
-        System.out.println("Sending SubscribeTickerPacket");
-        //bitfinexClient.getWebSocketClient().getWebSocketClientHandler().sendPacket(new SubscribeTickerPacket(Symbol.IOTUSD));
+        bitfinexClient.getWebSocketClient().getWebSocketClientHandler().setConnectedCallback( clientHandler -> {
+            System.out.println("Sending AuthenticationPacket");
+            AuthenticationPacket authPacket = new AuthenticationPacket(apiKey, apiSecret);
+            System.out.println("auth packet: " + ((TextWebSocketFrame) authPacket.toWebSocketFrame()).text());
+            bitfinexClient.getWebSocketClient().getWebSocketClientHandler().sendPacket(authPacket);
+            System.out.println("Sending SubscribeTickerPacket");
+            //bitfinexClient.getWebSocketClient().getWebSocketClientHandler().sendPacket(new SubscribeTickerPacket(Symbol.IOTUSD));
+        } );
     }
 
 }
