@@ -18,11 +18,9 @@ public class AuthenticationPacket extends Packet {
 
     public AuthenticationPacket(String apiKey, String apiSecret) {
         this.authNonce = String.valueOf(System.currentTimeMillis() * 1000);
-        System.out.println("authNonce: " + authNonce);
         this.authPayload = "AUTH" + authNonce + authNonce;
         this.authSig = generateSignature(authPayload, apiSecret);
         this.apiKey = apiKey;
-        System.out.println("authSig: " + authSig);
         this.authNonce = String.valueOf(Long.valueOf(authNonce) + 1);
     }
 

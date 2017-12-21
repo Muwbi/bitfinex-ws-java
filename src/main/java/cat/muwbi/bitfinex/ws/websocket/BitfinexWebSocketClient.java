@@ -17,6 +17,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import lombok.Getter;
 
 import java.net.URI;
 
@@ -24,21 +25,13 @@ public class BitfinexWebSocketClient {
 
     private static final String API_URL = "wss://api.bitfinex.com:443/ws/2";
 
+    @Getter
+    private final BitfinexClient bitfinexClient;
 
     private WebSocketClientHandler webSocketClientHandler;
 
-    public BitfinexWebSocketClient() {
-
-    }
-
-    public void connectSync() {
-        BitfinexClient.getInstance().getExecutorService().execute(() -> {
-            try {
-                connect();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+    public BitfinexWebSocketClient(BitfinexClient bitfinexClient) {
+        this.bitfinexClient = bitfinexClient;
     }
 
     public void connect() throws Exception {
@@ -53,7 +46,7 @@ public class BitfinexWebSocketClient {
 
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
 
-        webSocketClientHandler = new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(apiUri, WebSocketVersion.V13, null, true, new DefaultHttpHeaders()));
+        webSocketClientHandler = new WebSocketClientHandler(bitfinexClient, WebSocketClientHandshakerFactory.newHandshaker(apiUri, WebSocketVersion.V13, null, true, new DefaultHttpHeaders()));
 
         bootstrap.group(eventLoopGroup)
                 .channel(NioSocketChannel.class)
@@ -76,7 +69,7 @@ public class BitfinexWebSocketClient {
                 e.printStackTrace();
             }
             try {
-                webSocketClientHandler.handshakeFuture().sync();
+                webSocketClientHandler.getHandshakeFuture().sync();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

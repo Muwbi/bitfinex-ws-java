@@ -1,6 +1,5 @@
 package cat.muwbi.bitfinex.ws.websocket.protocol;
 
-import com.google.common.base.Ticker;
 import lombok.*;
 
 import java.util.regex.Pattern;
@@ -13,7 +12,8 @@ public class TickerPacket extends ResponsePacket {
 
     public static Pattern PATTERN = Pattern.compile("\\[(\\d{1,}),(\\[\\d{1,}\\.\\d{1,}),(\\d{1,}\\.\\d{1,}),(\\d{1,}\\.\\d{1,}),(\\d{1,}\\.\\d{1,}),(\\d{1,}\\.\\d{1,}),(\\d{1,}\\.\\d{1,}),(\\d{1,}\\.\\d{1,}),(\\d{1,}\\.\\d{1,}),(\\d{1,}\\.\\d{1,}),(\\d{1,}\\.\\d{1,})\\]\\]");
 
-    @NonNull private final boolean isHeartbeat;
+    @NonNull
+    private final boolean isHeartbeat;
     //private float flashReturnRate;
     private int channelId;
     private float bid;

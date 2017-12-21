@@ -36,7 +36,7 @@ public class BitfinexClient {
 
         gson = new GsonBuilder().create();
 
-        webSocketClient = new BitfinexWebSocketClient();
+        webSocketClient = new BitfinexWebSocketClient(this);
         try {
             webSocketClient.connect();
         } catch (Exception e) {

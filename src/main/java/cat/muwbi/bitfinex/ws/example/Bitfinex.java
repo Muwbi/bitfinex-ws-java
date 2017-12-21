@@ -1,29 +1,17 @@
 package cat.muwbi.bitfinex.ws.example;
 
 import cat.muwbi.bitfinex.ws.BitfinexClient;
-import cat.muwbi.bitfinex.ws.websocket.items.Symbol;
-import cat.muwbi.bitfinex.ws.websocket.protocol.AuthenticationPacket;
-import cat.muwbi.bitfinex.ws.websocket.protocol.SubscribeTickerPacket;
-import cat.muwbi.bitfinex.ws.websocket.protocol.TickerPacket;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 public class Bitfinex {
 
-    static String apiKey = "ORPv0raIny7d6MuglgRsB5uM6jehaMj2TeSgSkRnAcw";
-    static String apiSecret = "9r8fntgCNtT141XpCl0u3pmpEDAiakKKgdLN7eFy75u";
+    static String apiKey = "";
+    static String apiSecret = "";
+
+    public static BitfinexClient bitfinexClient;
 
     public static void main(String[] args) {
-        BitfinexClient bitfinexClient = new BitfinexClient();
+        bitfinexClient = new BitfinexClient();
         bitfinexClient.getEventBus().register(new BitfinexPacketHandler());
-
-        bitfinexClient.getWebSocketClient().getWebSocketClientHandler().setConnectedCallback( clientHandler -> {
-            System.out.println("Sending AuthenticationPacket");
-            AuthenticationPacket authPacket = new AuthenticationPacket(apiKey, apiSecret);
-            System.out.println("auth packet: " + ((TextWebSocketFrame) authPacket.toWebSocketFrame()).text());
-            bitfinexClient.getWebSocketClient().getWebSocketClientHandler().sendPacket(authPacket);
-            System.out.println("Sending SubscribeTickerPacket");
-            //bitfinexClient.getWebSocketClient().getWebSocketClientHandler().sendPacket(new SubscribeTickerPacket(Symbol.IOTUSD));
-        } );
     }
 
 }
