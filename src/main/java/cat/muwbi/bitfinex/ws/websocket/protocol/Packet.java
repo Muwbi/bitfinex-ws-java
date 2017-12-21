@@ -6,8 +6,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 public abstract class Packet {
 
-    public WebSocketFrame toWebSocketFrame() {
-        return new TextWebSocketFrame(BitfinexClient.getInstance().getGson().toJson(this));
+    public WebSocketFrame toWebSocketFrame(BitfinexClient bitfinexClient) {
+        return new TextWebSocketFrame(bitfinexClient.getGson().toJson(this));
     }
 
 }

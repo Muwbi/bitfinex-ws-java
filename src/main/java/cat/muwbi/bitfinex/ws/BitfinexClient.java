@@ -12,9 +12,6 @@ import java.util.concurrent.Executors;
 public class BitfinexClient {
 
     @Getter
-    private static BitfinexClient instance;
-
-    @Getter
     private final ExecutorService executorService = Executors.newCachedThreadPool((runnable) -> {
         Thread thread = new Thread(runnable);
         return thread;
@@ -30,8 +27,6 @@ public class BitfinexClient {
     private BitfinexWebSocketClient webSocketClient;
 
     public BitfinexClient() {
-        instance = this;
-
         eventBus = new EventBus();
 
         gson = new GsonBuilder().create();

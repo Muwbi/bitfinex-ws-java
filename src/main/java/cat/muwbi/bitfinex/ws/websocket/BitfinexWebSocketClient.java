@@ -61,7 +61,7 @@ public class BitfinexWebSocketClient {
                     }
                 });
 
-        BitfinexClient.getInstance().getExecutorService().execute(() -> {
+        bitfinexClient.getExecutorService().execute(() -> {
             Channel channel = null;
             try {
                 channel = bootstrap.connect(host, port).sync().channel();

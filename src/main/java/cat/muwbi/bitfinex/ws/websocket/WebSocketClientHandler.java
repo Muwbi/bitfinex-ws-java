@@ -76,7 +76,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                 System.out.println("WebSocket Client connected");
                 handshakeFuture.setSuccess();
 
-                BitfinexClient.getInstance().getEventBus().post(new ConnectedEvent());
+                bitfinexClient.getEventBus().post(new ConnectedEvent());
             } catch (WebSocketHandshakeException exception) {
                 System.out.println("WebSocket Client failed to connect");
                 handshakeFuture.setFailure(exception);
@@ -94,7 +94,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
             TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) frame;
 
-            JsonElement jsonElement = BitfinexClient.getInstance().getGson().fromJson(textWebSocketFrame.text(), JsonElement.class);
+            JsonElement jsonElement = bitfinexClient.getGson().fromJson(textWebSocketFrame.text(), JsonElement.class);
             System.out.println("debug: " + textWebSocketFrame.text());
 
             if (jsonElement.isJsonArray()) {
@@ -107,7 +107,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                 }
 
                 if (!jsonArray.get(1).isJsonArray() && jsonArray.get(1).getAsString().equals("hb")) {
-                    BitfinexClient.getInstance().getEventBus().post(new HeartbeatEvent(channelId));
+                    bitfinexClient.getEventBus().post(new HeartbeatEvent(channelId));
                     return;
                 }
 
@@ -120,7 +120,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                     int count = updateData.get(1).getAsInt();
                     float amount = updateData.get(2).getAsFloat();
 
-                    BitfinexClient.getInstance().getEventBus().post(new BookUpdateEvent(channelInfo, price, count, amount));
+                    bitfinexClient.getEventBus().post(new BookUpdateEvent(channelInfo, price, count, amount));
 
                     System.out.println("Received BookSubscription update");
                 } else if (channelInfo instanceof TradeSubscriptionChannelInfo) {
@@ -137,7 +137,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                     float amount = updateData.get(2).getAsFloat();
                     float price = updateData.get(3).getAsFloat();
 
-                    BitfinexClient.getInstance().getEventBus().post(new TradeUpdateEvent(channelInfo, (type.equals("tu") ? TradeUpdateEvent.Type.TRADE_UPDATE : TradeUpdateEvent.Type.TRADE_EXECUTION), id, mts, amount, price));
+                    bitfinexClient.getEventBus().post(new TradeUpdateEvent(channelInfo, (type.equals("tu") ? TradeUpdateEvent.Type.TRADE_UPDATE : TradeUpdateEvent.Type.TRADE_EXECUTION), id, mts, amount, price));
 
                     System.out.println("Received TradeSubscription update");
                 } else if (channelInfo instanceof TickerSubscriptionChannelInfo) {
@@ -154,7 +154,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                     float high = updateData.get(8).getAsFloat();
                     float low = updateData.get(9).getAsFloat();
 
-                    BitfinexClient.getInstance().getEventBus().post(new TickerUpdateEvent(channelInfo, bid, bidSize, ask, askSize, dailyChange, dailyChangePercentage, lastPrice, volume, high, low));
+                    bitfinexClient.getEventBus().post(new TickerUpdateEvent(channelInfo, bid, bidSize, ask, askSize, dailyChange, dailyChangePercentage, lastPrice, volume, high, low));
 
                     System.out.println("Received TickerSubscription update");
                 } else if (channelInfo instanceof CandleSubscriptionChannelInfo) {
@@ -167,7 +167,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                     float low = updateData.get(4).getAsFloat();
                     float volume = updateData.get(5).getAsFloat();
 
-                    BitfinexClient.getInstance().getEventBus().post(new CandleUpdateEvent(channelInfo, mts, open, close, high, low, volume));
+                    bitfinexClient.getEventBus().post(new CandleUpdateEvent(channelInfo, mts, open, close, high, low, volume));
 
                     System.out.println("Received CandleSubscription update");
                 } else if (channelInfo instanceof AccountChannelInfo) {
@@ -218,16 +218,16 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                                 return;
                         }
 
-                        BitfinexClient.getInstance().getEventBus().post(new SubscribedEvent(channelMap.get(channelId)));
+                        bitfinexClient.getEventBus().post(new SubscribedEvent(channelMap.get(channelId)));
                     } else if (event.equals("auth") && !jsonObject.get("status").getAsString().equals("OK")) {
                         // Auth error
-                        BitfinexClient.getInstance().getEventBus().post(new AuthentificationErrorEvent(jsonObject.get("code").getAsInt()));
+                        bitfinexClient.getEventBus().post(new AuthentificationErrorEvent(jsonObject.get("code").getAsInt()));
                     } else if (event.equals("auth")) {
                         // Auth successful
                         // Account channel always uses 0 as channelId
                         channelMap.put(0, new AccountChannelInfo(0));
 
-                        BitfinexClient.getInstance().getEventBus().post(new AuthenticatedEvent());
+                        bitfinexClient.getEventBus().post(new AuthenticatedEvent());
                     } else if (event.equals("info")) {
 
                         // TODO: EventBus post
@@ -240,7 +240,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             }
         } else if (frame instanceof CloseWebSocketFrame) {
             System.out.println("Received closing");
-            BitfinexClient.getInstance().getEventBus().post(new ConnectionClosedEvent());
+            bitfinexClient.getEventBus().post(new ConnectionClosedEvent());
         } else {
             System.out.println("Received something else: " + frame.getClass().getName());
         }
@@ -248,7 +248,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     public void sendPacket(Packet packet) {
         System.out.println("Sending packet: " + packet.getClass().getSimpleName());
-        channel.writeAndFlush(packet.toWebSocketFrame());
+        channel.writeAndFlush(packet.toWebSocketFrame(bitfinexClient));
     }
 
 }

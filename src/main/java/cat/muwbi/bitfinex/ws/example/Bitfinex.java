@@ -4,8 +4,8 @@ import cat.muwbi.bitfinex.ws.BitfinexClient;
 
 public class Bitfinex {
 
-    static String apiKey = "";
-    static String apiSecret = "";
+    static String apiKey = "ORPv0raIny7d6MuglgRsB5uM6jehaMj2TeSgSkRnAcw";
+    static String apiSecret = "9r8fntgCNtT141XpCl0u3pmpEDAiakKKgdLN7eFy75u";
 
     public static BitfinexClient bitfinexClient;
 
